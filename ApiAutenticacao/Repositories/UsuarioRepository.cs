@@ -1,28 +1,39 @@
 ﻿using ApiAutenticacao.Data;
+using ApiAutenticacao.Repositories.Interfaces;
+using Microsoft.EntityFrameworkCore;
 using SIA_SistemaIntegradoDeAutenticação;
 using static ApiAutenticacao.Repositories.UsuarioRepository;
 
 namespace ApiAutenticacao.Repositories
 {
-    public class UsuarioRepository
+    /// <summary>
+    /// ProdutoRepository - classe de repositório
+    /// responsável por acessor os dados dos produtos no banco de dados
+    /// </summary>
+    /// <remarks>
+    /// Construtor da classe - recebeu o contexto do banco de dados 
+    /// </remarks>
+    /// <param name="context"></param>"
+    public class UsuarioRepository : IUsuarioRepository
     {
-        /// <summary>
-        /// ProdutoRepository - classe de repositório
-        /// responsável por acessor os dados dos produtos no banco de dados
-        /// </summary>
-        /// <remarks>
-        /// Construtor da classe - recebeu o contexto do banco de dados 
-        /// </remarks>
-        /// <param name="context"></param>"
-        public class UsuarioRepository(AppDbContext context) : IUsuarioRepository
-        {
+       
+      
             /// <summary>
             /// AppDbContext - contexto do banco de dados - responsável por
             /// gerenciar a conexão com o banco de dados e fornecer acesso
             /// is tabelas e entidades do banco de dados
             /// </summary>
 
-            private readonly AppDbContext _context = context;
+            private readonly AppDbContext _context;
+            /// <summary>
+            /// Construtor da classe UsuarioRepository que recebe uma instância de AppDbContext como parâmetro.
+            /// </summary>
+            /// <param name="context"></param>
+            public UsuarioRepository(AppDbContext context)
+            {
+                _context = context;
+            }
+
 
             /// <summary>
             /// O metódo GetAll é responsável 
@@ -30,7 +41,8 @@ namespace ApiAutenticacao.Repositories
             /// </summary>
             /// <returns></returns>
 
-            public async Task<List<Usuarios>> GetAll() => await _context.Usuarios.ToListAsync();
+
+            public async Task<List<Usuarios>> Listar() => await _context.Usuarios.ToListAsync();
 
             /// <summary>
             /// GetById é responsável por retornar um produto específico
@@ -38,7 +50,7 @@ namespace ApiAutenticacao.Repositories
             /// <param name="id"></param>
             /// <returns></returns>
 
-            public async Task<Usuarios> GetById(int id) => await _context.Usuarios.FindAsync(id);
+            public async Task<Usuarios> ObterPorId(int id) => await _context.Usuarios.FindAsync(id);
 
             /// <summary>
             /// Add é responsável por adicionar um novo 
@@ -60,7 +72,7 @@ namespace ApiAutenticacao.Repositories
             /// <param name="usuario"></param>
             /// <returns></returns>
 
-            public async Task Update(Usuarios usuario)
+            public async Task Atualizar(Usuarios usuario)
             {
                 _context.Usuarios.Update(usuario);
                 await _context.SaveChangesAsync();
@@ -75,10 +87,10 @@ namespace ApiAutenticacao.Repositories
 
             public async Task Delete(int id)
             {
-                var p = await GetById(id);
+                var p = await ObterPorId(id);
                 _context.Usuarios.Remove(p);
                 await _context.SaveChangesAsync();
             }
         }
     }
-}
+

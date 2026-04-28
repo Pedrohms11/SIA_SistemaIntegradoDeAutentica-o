@@ -29,7 +29,7 @@ namespace ApiAutenticacao.Services
         /// </summary>
         /// <returns></returns>
 
-        public async Task<List<Usuarios>> Listar() => await _repo.GetAll();
+        public async Task<List<Usuarios>> Listar() => await _repo.Listar();
 
         /// <summary>
         /// obter um produto por id - chama o método GetById
@@ -39,7 +39,7 @@ namespace ApiAutenticacao.Services
         /// <param name="id"></param>
         /// <returns></returns>
 
-        public async Task<Usuarios> ObterPorId(int id) => await _repo.GetById(id);
+        public async Task<Usuarios> ObterPorId(int id) => await _repo.ObterPorId(id);
 
         /// <summary>
         /// Criar um novo usuario - Chama o método Add
@@ -56,11 +56,11 @@ namespace ApiAutenticacao.Services
         /// </summary>
         /// <param name="produto"></param>
         /// <returns></returns>
-        public async Task Atualizar(Usuarios usuario)
+        public async Task Atualizar(int id, Usuarios usuario)
         {
 
 
-            await _repo.Update(usuario);
+            await _repo.Atualizar(usuario);
         }
 
         /// <summary>
@@ -73,4 +73,4 @@ namespace ApiAutenticacao.Services
 
     }
 }
-}
+
