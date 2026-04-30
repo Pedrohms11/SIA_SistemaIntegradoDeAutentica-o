@@ -17,4 +17,8 @@
     <PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" Version="3.0.2" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\SIA_SistemaIntegradoDeAutenticação\SIA_SistemaIntegradoDeAutenticação.csproj" />
+  </ItemGroup>
+
 </Project>
