@@ -6,8 +6,8 @@ namespace ApiAutenticacaoUs.Repositories.Interfaces
     {
         Task<List<Usuarios>> GetAll();
         Task<Usuarios> GetById(int id);
-        Task Add(Usuarios usuarios);
-        Task Update(Usuarios usuarios);
+        Task Add(Usuarios usuario);
+        Task Update(Usuarios usuario);
         Task Delete(int id);
     }
 }

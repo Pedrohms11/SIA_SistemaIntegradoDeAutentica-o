@@ -1,5 +1,6 @@
 ﻿using ApiAutenticacaoUs.Data;
 using ApiAutenticacaoUs.Repositories.Interfaces;
+using Microsoft.EntityFrameworkCore;
 using SIA_SistemaIntegradoDeAutenticação;
 
 namespace ApiAutenticacaoUs.Repositories
@@ -13,19 +14,19 @@ namespace ApiAutenticacaoUs.Repositories
             _context = context;
         }
 
-        public async Task<List<Usuarios>> GetAll() => await _context.Usuarios.ToListAsync();
+        public async Task<List<Usuarios>> GetAll() => await _context.Usuario.ToListAsync();
 
-        public async Task<Usuarios> GetById(int id) => await _context.Usuarios.FindAsync(id);
+        public async Task<Usuarios> GetById(int id) => await _context.Usuario.FindAsync(id);
 
-        public async Task add(Usuarios usuarios)
+        public async Task Add(Usuarios usuario)
         {
-            _context.Usuarios.Add(usuarios);
+            _context.Usuario.Add(usuario);
             await _context.SaveChangesAsync();
         }
          
         public async Task Update (Usuarios usuarios)
         {
-            _context.Usuarios.Update(usuarios);
+            _context.Usuario.Update(usuarios);
             await _context.SaveChangesAsync();
 
         }
@@ -33,7 +34,7 @@ namespace ApiAutenticacaoUs.Repositories
         public async Task Delete(int id)
         {
             var u = await GetById(id);
-            _context.Usuarios.Remove(u);
+            _context.Usuario.Remove(u);
             await _context.SaveChangesAsync();
         }
     }
