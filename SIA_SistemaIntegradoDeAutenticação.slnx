@@ -1,6 +1,6 @@
 <Solution>
   <Project Path="ApiAutenticacaoUs/ApiAutenticacaoUs.csproj" Id="fe71bb79-2c91-4d2b-9772-a06a4adc90ae" />
   <Project Path="AutenticacaoConsole/UsuariosConsole.csproj" Id="e0e1a572-265b-4e41-8ad8-df388ec6388d" />
-  <Project Path="InterfaceDeAutenticação/InterfaceDeUsuarios.csproj" Id="c42128a9-ca7c-44d9-8d83-96f3de73e32f" />
+  <Project Path="InterfaceDeUsuarios/InterfaceDeUsuarios.csproj" Id="72f14f10-c1cc-4ba0-9555-172837545e55" />
   <Project Path="SIA_SistemaIntegradoDeAutenticação/SIA_SistemaIntegradoDeAutenticação.csproj" />
 </Solution>

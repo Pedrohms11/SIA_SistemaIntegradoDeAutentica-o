@@ -1,5 +1,4 @@
-﻿using InterfaceDeAutenticação.ViewModel;
-using System.Text;
+﻿using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -10,7 +9,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace InterfaceDeAutenticação
+namespace InterfaceDeUsuarios
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
@@ -20,7 +19,6 @@ namespace InterfaceDeAutenticação
         public MainWindow()
         {
             InitializeComponent();
-            DataContext = new MainViewModel();
         }
     }
 }
