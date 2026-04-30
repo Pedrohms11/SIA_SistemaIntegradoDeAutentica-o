@@ -1,6 +1,7 @@
-﻿using InterfaceDeUsuarios.Data;
-using System.Configuration;
-using System.Data;
+﻿using ApiAutenticacaoUs.Data;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using System.IO;
 using System.Windows;
 

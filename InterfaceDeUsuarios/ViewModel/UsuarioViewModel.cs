@@ -1,13 +1,9 @@
-﻿using InterfaceDeUsuarios.Commands;
+﻿using ApiAutenticacaoUs.Data;
+using Microsoft.EntityFrameworkCore;
 using SIA_SistemaIntegradoDeAutenticação;
-using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 
@@ -27,6 +23,8 @@ namespace InterfaceDeUsuarios.ViewModel
 
         public UsuarioViewModel()
         {
+            var optionsBuilder = new DbContextOptionsBuilder<AppDbContext>();
+            optionsBuilder.UseSqlite("Data Source=Usuarios.db");
             _context = new AppDbContext();
             CarregarUsuariosCommand = new RelayCommand(CarregarUsuarios);
             BuscarCommand = new RelayCommand(BuscarUsuarios);
@@ -151,7 +149,7 @@ namespace InterfaceDeUsuarios.ViewModel
             try
             {
                 Usuarios = new ObservableCollection<Usuarios>(
-                    _context.Usuarios.OrderBy(u => u.NomeCompleto).ToList()
+                    _context.Usuario.OrderBy(u => u.NomeCompleto).ToList()
                 );
                 MessageBox.Show($"✅ {Usuarios.Count} usuários carregados!", "Sucesso",
                     MessageBoxButton.OK, MessageBoxImage.Information);
@@ -173,7 +171,7 @@ namespace InterfaceDeUsuarios.ViewModel
                     return;
                 }
 
-                IQueryable<Usuarios> query = _context.Usuarios;
+                IQueryable<Usuarios> query = _context.Usuario;
 
                 switch (TipoBusca)
                 {
@@ -221,7 +219,7 @@ namespace InterfaceDeUsuarios.ViewModel
                     return;
 
                 // Buscar o usuário original no contexto
-                var usuarioOriginal = _context.Usuarios.Find(UsuarioSelecionado.Id);
+                var usuarioOriginal = _context.Usuario.Find(UsuarioSelecionado.Id);
                 if (usuarioOriginal == null)
                 {
                     MessageBox.Show("Usuário não encontrado no banco de dados!", "Erro",

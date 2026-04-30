@@ -1,18 +1,12 @@
 ﻿using Microsoft.Data.Sqlite;
 using SIA_SistemaIntegradoDeAutenticação;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Security.Cryptography;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 
 namespace InterfaceDeUsuarios.Data
 {
     public class UsuarioRepository
     {
+
         public void Inserir(Usuarios usuarios)
         {
             using var conn = DataBase.GetConnection();
@@ -84,7 +78,9 @@ namespace InterfaceDeUsuarios.Data
         }
         public Usuarios BuscarPorId(int id)
         {
-            using var cmd = new SqliteCommand(@"SELECT Id, Username, NomeCompleto, Email, Senha, Genero, 
+            using var conn = DataBase.GetConnection();
+            conn.Open();
+            var cmd = new SqliteCommand(@"SELECT Id, Username, NomeCompleto, Email, Senha, Genero, 
                                                Telefone, Pais, DataNascimento, DataCadastro, 
                                                UltimoLogin, EmailVerificado
                                                FROM Usuarios 
@@ -111,16 +107,12 @@ namespace InterfaceDeUsuarios.Data
                     UltimoLogin = reader.GetDateTime(10),
                     EmailVerificado = reader.GetBoolean(11)
                 };
-
-                if (usuario.Id == id)
-                {
-                    return usuario;
-                }
-                if (usuario.Id != id)
-                {
-                    MessageBox.Show("Usuario não encontrado");
-
-                }
+                return usuario; // ✅ Retorna o usuário encontrado
+            }
+            else
+            {
+                MessageBox.Show($"Usuário com ID {id} não encontrado");
+                return null; // ✅ Retorna null quando não encontra
             }
         }
         public void Atualizar(Usuarios usuarios)
@@ -165,5 +157,6 @@ namespace InterfaceDeUsuarios.Data
             cmd.Parameters.AddWithValue("@id", id);
             cmd.ExecuteNonQuery();
         }
+
     }
 }

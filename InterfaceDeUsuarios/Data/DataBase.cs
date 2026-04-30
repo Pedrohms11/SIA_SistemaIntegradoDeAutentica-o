@@ -12,10 +12,10 @@ namespace InterfaceDeUsuarios.Data
     public class DataBase
     {
         private static readonly string pastaBase =
-            Path.Combine(
-                Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
-                "InterfaceDeUsuarios"
-            );
+           Path.Combine(
+               Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
+               "InterfaceDeUsuarios"
+           );
 
         private static readonly string caminhoBanco =
             Path.Combine(pastaBase, "InterfaceUs.db");
@@ -23,7 +23,7 @@ namespace InterfaceDeUsuarios.Data
         private static readonly string connectionString =
             $"Data Source={caminhoBanco}";
 
-         static DataBase()
+        static DataBase()
         {
             if (!Directory.Exists(pastaBase))
                 Directory.CreateDirectory(pastaBase);

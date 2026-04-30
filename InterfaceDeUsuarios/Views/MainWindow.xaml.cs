@@ -20,9 +20,10 @@ namespace InterfaceDeUsuarios
         public MainWindow()
         {
             InitializeComponent();
+            DataContext = new UsuarioViewModel();
 
             // Conectar PasswordBox com ViewModel
-            var viewModel = (UsuarioViewModel)this.Resources["ViewModel"];
+            var viewModel = (UsuarioViewModel)this.DataContext;
 
             // Evento para sincronizar senhas
             this.Loaded += (s, e) =>
