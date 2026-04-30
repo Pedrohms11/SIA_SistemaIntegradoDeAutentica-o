@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Microsoft.Data.Sqlite;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-
 namespace InterfaceDeAutenticação.Data
 {
     public static class Database

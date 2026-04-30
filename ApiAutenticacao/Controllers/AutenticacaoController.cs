@@ -1,12 +1,12 @@
 ﻿using ApiAutenticacao.Services;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using SIA_SistemaIntegradoDeAutenticação;
-using System.Linq.Expressions;
-using System.Security.Cryptography.X509Certificates;
+
 
 namespace ApiAutenticacao.Controllers
 {
+    [ApiController]
+    [Route("api/[controller]")]
     public class AutenticacaoController : ControllerBase
     {
         private readonly UsuarioService _service;
@@ -54,6 +54,7 @@ namespace ApiAutenticacao.Controllers
             }
 
         }
+        [HttpPost]
         public async Task<IActionResult> Post([FromBody]Usuarios usuario)
         {
             try
@@ -80,6 +81,7 @@ namespace ApiAutenticacao.Controllers
                 return StatusCode(500, new { Message = "Ocorreu um erro ao criar o usuário.", Error = ex.Message });
             }
         }
+        [HttpPut]
         public async  Task<IActionResult> Put (int id,[FromBody] Usuarios usuario)
         {
             if (id <= 0)
@@ -101,6 +103,7 @@ namespace ApiAutenticacao.Controllers
                 return StatusCode(500, new { Message = "Ocorreu um erro ao atualizar o usuário.", Error = ex.Message });
             }
         }
+        [HttpDelete]
         public async Task<IActionResult> Delete(int Id)
         {
             var usuarioExistente = await _service.ObterPorId(Id);

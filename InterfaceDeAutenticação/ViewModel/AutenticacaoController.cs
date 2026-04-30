@@ -1,12 +1,8 @@
-﻿using Microsoft.VisualBasic.FileIO;
+﻿
+
+using ApiAutenticacao.Services;
+using Microsoft.AspNetCore.Mvc;
 using SIA_SistemaIntegradoDeAutenticação;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Security.Cryptography.X509Certificates;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace InterfaceDeAutenticação.ViewModel
 {
@@ -17,9 +13,9 @@ namespace InterfaceDeAutenticação.ViewModel
     [Route("api/[controller]")]
     public class AutenticacaoController : ControllerBase
     {
-        private readonly AutenticacaoService _autenticacaoService;
+        private readonly UsuarioService _autenticacaoService;
 
-        public AutenticacaoController(AutenticacaoService autenticacaoService)
+        public AutenticacaoController(UsuarioService autenticacaoService)
         {
             _autenticacaoService = autenticacaoService;
         }
@@ -39,11 +35,11 @@ namespace InterfaceDeAutenticação.ViewModel
 
         }
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetById()
+        public async Task<IActionResult> GetById(int id)
         {
             try
             {
-                var autenticacaoData = await _autenticacaoService.GetAutenticacaoDataByIdAsync();
+                var autenticacaoData = await _autenticacaoService.GetAutenticacaoDataByIdAsync(id);
                 if (autenticacaoData == null)
                     return NotFound("Dados de autenticação não encontrados.");
                 return Ok(autenticacaoData);
@@ -56,12 +52,12 @@ namespace InterfaceDeAutenticação.ViewModel
             }
         }
         [HttpPost]
-        public async Task<IActionResult> Post()
+        public async Task<IActionResult> Post(Usuarios usuarios)
         {
             try
             {
-                var autenticacaoData = await _autenticacaoService.CreateAutenticacaoDataAsync();
-                return Ok(autenticacaoData);
+                var _usuarioService = await _autenticacaoService.CreateAutenticacaoDataAsync(usuarios);
+                return Ok(_usuarioService);
 
             }
             catch (Exception ex)
@@ -71,14 +67,14 @@ namespace InterfaceDeAutenticação.ViewModel
             }
         }
         [HttpPut("{id}")]
-        public async Task<IActionResult> Put()
+        public async Task<IActionResult> Put(int id, Usuarios usuarios)
         {
             try
             {
-                var autenticacaoData = await _autenticacaoService.UpdateAutenticacaoDataAsync();
-                if (autenticacaoData == null)
+                var usuarioExistente = await _autenticacaoService.Atualizar(id, usuarios);
+                if (usuarioExistente == null)
                     return NotFound("Dados de autenticação não encontrados para atualização.");
-                return Ok(autenticacaoData);
+                return Ok(usuarioExistente);
             }
             catch (Exception ex)
             {
@@ -88,11 +84,11 @@ namespace InterfaceDeAutenticação.ViewModel
 
         }
         [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete()
+        public async Task<IActionResult> Delete(int id)
         {
             try
             {
-                var success = await _autenticacaoService.DeleteAutenticacaoDataAsync();
+                var success = await _autenticacaoService.DeleteAutenticacaoDataAsync(id);
                 if (!success)
                     return NotFound("Dados de autenticação não encontrados para exclusão.");
                 return Ok("Dados de autenticação excluídos com sucesso.");
@@ -103,4 +99,5 @@ namespace InterfaceDeAutenticação.ViewModel
                 return StatusCode(500, "Erro ao excluir dados de autenticação: " + ex.Message);
             }
         }
+    }
 }
