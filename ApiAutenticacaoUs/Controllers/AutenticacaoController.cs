@@ -46,7 +46,7 @@ namespace ApiAutenticacaoUs.Controllers
 
         [HttpPut("{id}")]
         public async Task<IActionResult> Put(int id, [FromBody] Usuarios usuarios)
-        {,
+        {
             if (id != usuarios.Id)
                 return BadRequest();
             var existente = await _service.ObterPorId(id);
