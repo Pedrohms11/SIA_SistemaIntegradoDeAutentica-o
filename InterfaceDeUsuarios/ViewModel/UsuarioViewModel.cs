@@ -9,7 +9,7 @@ using System.Windows.Input;
 
 namespace InterfaceDeUsuarios.ViewModel
 {
-    public class UsuarioViewModel : BaseViewModel
+    public class UsuarioViewModel : INotifyPropertyChanged  // Remova BaseViewModel se não existir
     {
         private readonly AppDbContext _context;
         private ObservableCollection<Usuarios> _usuarios;
@@ -23,16 +23,30 @@ namespace InterfaceDeUsuarios.ViewModel
 
         public UsuarioViewModel()
         {
-            var optionsBuilder = new DbContextOptionsBuilder<AppDbContext>();
-            optionsBuilder.UseSqlite("Data Source=Usuarios.db");
-            _context = new AppDbContext();
-            CarregarUsuariosCommand = new RelayCommand(CarregarUsuarios);
-            BuscarCommand = new RelayCommand(BuscarUsuarios);
-            SalvarCommand = new RelayCommand(SalvarUsuario, CanSalvar);
-            NovoCommand = new RelayCommand(NovoUsuario);
-            LimparCommand = new RelayCommand(LimparFormulario);
+            try
+            {
+                // CORREÇÃO 1: Usar apenas uma linha para criar o contexto
+                var optionsBuilder = new DbContextOptionsBuilder<AppDbContext>();
+                optionsBuilder.UseSqlite("Data Source=Usuarios.db");
+                _context = new AppDbContext(optionsBuilder.Options);  // Passar as options
 
-            CarregarUsuarios();
+                // CORREÇÃO 2: Inicializar comandos
+                CarregarUsuariosCommand = new RelayCommand(CarregarUsuarios);
+                BuscarCommand = new RelayCommand(BuscarUsuarios);
+                SalvarCommand = new RelayCommand(SalvarUsuario, CanSalvar);
+                NovoCommand = new RelayCommand(NovoUsuario);
+                LimparCommand = new RelayCommand(LimparFormulario);
+
+                // CORREÇÃO 3: Inicializar coleções vazias
+                _usuarios = new ObservableCollection<Usuarios>();
+
+                CarregarUsuarios();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Erro ao inicializar ViewModel: {ex.Message}",
+                    "Erro", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
         // Propriedades
@@ -148,11 +162,14 @@ namespace InterfaceDeUsuarios.ViewModel
         {
             try
             {
-                Usuarios = new ObservableCollection<Usuarios>(
-                    _context.Usuario.OrderBy(u => u.NomeCompleto).ToList()
-                );
-                MessageBox.Show($"✅ {Usuarios.Count} usuários carregados!", "Sucesso",
-                    MessageBoxButton.OK, MessageBoxImage.Information);
+                var usuarios = _context.Usuario.OrderBy(u => u.NomeCompleto).ToList();
+                Usuarios = new ObservableCollection<Usuarios>(usuarios);
+
+                if (usuarios.Any())
+                {
+                    MessageBox.Show($"✅ {Usuarios.Count} usuários carregados!", "Sucesso",
+                        MessageBoxButton.OK, MessageBoxImage.Information);
+                }
             }
             catch (Exception ex)
             {
@@ -214,57 +231,80 @@ namespace InterfaceDeUsuarios.ViewModel
                     return;
                 }
 
-                // Validações
-                if (!ValidarUsuario())
-                    return;
-
-                // Buscar o usuário original no contexto
-                var usuarioOriginal = _context.Usuario.Find(UsuarioSelecionado.Id);
-                if (usuarioOriginal == null)
+                if (UsuarioSelecionado.Id == 0)
                 {
-                    MessageBox.Show("Usuário não encontrado no banco de dados!", "Erro",
-                        MessageBoxButton.OK, MessageBoxImage.Error);
-                    return;
-                }
+                    // É um novo usuário
+                    if (!ValidarNovoUsuario())
+                        return;
 
-                // Atualizar apenas os campos editáveis
-                usuarioOriginal.NomeCompleto = UsuarioSelecionado.NomeCompleto;
-                usuarioOriginal.Email = UsuarioSelecionado.Email;
-                usuarioOriginal.Telefone = UsuarioSelecionado.Telefone;
-                usuarioOriginal.Genero = UsuarioSelecionado.Genero;
-                usuarioOriginal.Pais = UsuarioSelecionado.Pais;
-                usuarioOriginal.DataNascimento = UsuarioSelecionado.DataNascimento;
-                usuarioOriginal.EmailVerificado = UsuarioSelecionado.EmailVerificado;
-
-                // Atualizar senha se foi alterada
-                if (!string.IsNullOrEmpty(NovaSenha))
-                {
-                    if (NovaSenha != ConfirmarSenha)
+                    if (!string.IsNullOrEmpty(NovaSenha) && NovaSenha != ConfirmarSenha)
                     {
                         MessageBox.Show("As senhas não conferem!", "Erro",
                             MessageBoxButton.OK, MessageBoxImage.Error);
                         return;
                     }
-                    usuarioOriginal.Senha = NovaSenha;
+
+                    UsuarioSelecionado.Senha = NovaSenha;
+                    _context.Usuario.Add(UsuarioSelecionado);
+                    _context.SaveChanges();
+
+                    MessageBox.Show($"✅ Novo usuário {UsuarioSelecionado.NomeCompleto} criado!",
+                        "Sucesso", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+                else
+                {
+                    // Atualizar usuário existente
+                    if (!ValidarUsuario())
+                        return;
+
+                    var usuarioOriginal = _context.Usuario.Find(UsuarioSelecionado.Id);
+                    if (usuarioOriginal == null)
+                    {
+                        MessageBox.Show("Usuário não encontrado no banco de dados!", "Erro",
+                            MessageBoxButton.OK, MessageBoxImage.Error);
+                        return;
+                    }
+
+                    // Atualizar apenas os campos editáveis
+                    usuarioOriginal.NomeCompleto = UsuarioSelecionado.NomeCompleto;
+                    usuarioOriginal.Email = UsuarioSelecionado.Email;
+                    usuarioOriginal.Telefone = UsuarioSelecionado.Telefone;
+                    usuarioOriginal.Genero = UsuarioSelecionado.Genero;
+                    usuarioOriginal.Pais = UsuarioSelecionado.Pais;
+                    usuarioOriginal.DataNascimento = UsuarioSelecionado.DataNascimento;
+                    usuarioOriginal.EmailVerificado = UsuarioSelecionado.EmailVerificado;
+
+                    // Atualizar senha se foi alterada
+                    if (!string.IsNullOrEmpty(NovaSenha))
+                    {
+                        if (NovaSenha != ConfirmarSenha)
+                        {
+                            MessageBox.Show("As senhas não conferem!", "Erro",
+                                MessageBoxButton.OK, MessageBoxImage.Error);
+                            return;
+                        }
+                        usuarioOriginal.Senha = NovaSenha;
+                    }
+
+                    var result = MessageBox.Show($"Deseja salvar as alterações para {usuarioOriginal.NomeCompleto}?",
+                        "Confirmar", MessageBoxButton.YesNo, MessageBoxImage.Question);
+
+                    if (result != MessageBoxResult.Yes)
+                        return;
+
+                    _context.SaveChanges();
+
+                    MessageBox.Show($"✅ Usuário {usuarioOriginal.NomeCompleto} atualizado com sucesso!",
+                        "Sucesso", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
 
-                // Confirmar salvamento
-                var result = MessageBox.Show($"Deseja salvar as alterações para {usuarioOriginal.NomeCompleto}?",
-                    "Confirmar", MessageBoxButton.YesNo, MessageBoxImage.Question);
-
-                if (result != MessageBoxResult.Yes)
-                    return;
-
-                _context.SaveChanges();
-
-                MessageBox.Show($"✅ Usuário {usuarioOriginal.NomeCompleto} atualizado com sucesso!",
-                    "Sucesso", MessageBoxButton.OK, MessageBoxImage.Information);
-
-                // Recarregar lista
                 CarregarUsuarios();
 
-                // Encontrar e selecionar o usuário atualizado
-                UsuarioSelecionado = Usuarios.FirstOrDefault(u => u.Id == usuarioOriginal.Id);
+                // Encontrar e selecionar o usuário atualizado/criado
+                if (UsuarioSelecionado.Id > 0)
+                    UsuarioSelecionado = Usuarios.FirstOrDefault(u => u.Id == UsuarioSelecionado.Id);
+                else
+                    UsuarioSelecionado = null;
             }
             catch (DbUpdateException ex)
             {
@@ -276,6 +316,46 @@ namespace InterfaceDeUsuarios.ViewModel
                 MessageBox.Show($"Erro inesperado: {ex.Message}", "Erro",
                     MessageBoxButton.OK, MessageBoxImage.Error);
             }
+        }
+
+        private bool ValidarNovoUsuario()
+        {
+            if (string.IsNullOrWhiteSpace(UsuarioSelecionado.NomeCompleto))
+            {
+                MessageBox.Show("Nome completo é obrigatório!", "Validação",
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                return false;
+            }
+
+            if (string.IsNullOrWhiteSpace(UsuarioSelecionado.Username))
+            {
+                MessageBox.Show("Username é obrigatório!", "Validação",
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                return false;
+            }
+
+            if (string.IsNullOrWhiteSpace(UsuarioSelecionado.Email))
+            {
+                MessageBox.Show("Email é obrigatório!", "Validação",
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                return false;
+            }
+
+            if (!UsuarioSelecionado.Email.Contains("@") || !UsuarioSelecionado.Email.Contains("."))
+            {
+                MessageBox.Show("Email inválido!", "Validação",
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                return false;
+            }
+
+            if (string.IsNullOrEmpty(NovaSenha))
+            {
+                MessageBox.Show("Senha é obrigatória para novo usuário!", "Validação",
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                return false;
+            }
+
+            return true;
         }
 
         private bool ValidarUsuario()
@@ -301,7 +381,6 @@ namespace InterfaceDeUsuarios.ViewModel
                 return false;
             }
 
-            // Validar telefone se foi preenchido
             if (!string.IsNullOrWhiteSpace(UsuarioSelecionado.Telefone))
             {
                 var telefoneLimpo = new string(UsuarioSelecionado.Telefone.Where(char.IsDigit).ToArray());
@@ -325,6 +404,8 @@ namespace InterfaceDeUsuarios.ViewModel
         {
             UsuarioSelecionado = new Usuarios
             {
+                Id = 0,  // Importante: ID 0 indica novo registro
+                Username = "",
                 DataCadastro = DateTime.Now,
                 UltimoLogin = DateTime.Now,
                 EmailVerificado = false,

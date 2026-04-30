@@ -3,38 +3,38 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:InterfaceDeUsuarios"
+        xmlns:vm="clr-namespace:InterfaceDeUsuarios.ViewModel"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Height="700" 
+        Width="1100"
+        WindowStartupLocation="CenterScreen">
+
     <Window.Resources>
-        <local:UsuariosViewModel x:Key="ViewModel"/>
+        <!-- Estilos necessários para os controles -->
 
-        <!-- Estilos -->
-        <Style TargetType="Button">
-            <Setter Property="FontSize" Value="13"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Padding" Value="12,6"/>
-            <Setter Property="Margin" Value="5"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="MinWidth" Value="100"/>
-        </Style>
-
+        <!-- Estilo para TextBox do formulário -->
         <Style TargetType="TextBox" x:Key="FormTextBox">
             <Setter Property="FontSize" Value="13"/>
             <Setter Property="Margin" Value="5,2,5,5"/>
             <Setter Property="Padding" Value="8,5"/>
             <Setter Property="Height" Value="35"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="BorderBrush" Value="#BDC3C7"/>
+            <Setter Property="BorderThickness" Value="1"/>
         </Style>
 
+        <!-- Estilo para PasswordBox do formulário -->
         <Style TargetType="PasswordBox" x:Key="FormPasswordBox">
             <Setter Property="FontSize" Value="13"/>
             <Setter Property="Margin" Value="5,2,5,5"/>
             <Setter Property="Padding" Value="8,5"/>
             <Setter Property="Height" Value="35"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="BorderBrush" Value="#BDC3C7"/>
+            <Setter Property="BorderThickness" Value="1"/>
         </Style>
 
+        <!-- Estilo para ComboBox do formulário -->
         <Style TargetType="ComboBox" x:Key="FormComboBox">
             <Setter Property="FontSize" Value="13"/>
             <Setter Property="Margin" Value="5,2,5,5"/>
@@ -43,31 +43,51 @@
             <Setter Property="VerticalContentAlignment" Value="Center"/>
         </Style>
 
+        <!-- Estilo para DatePicker do formulário -->
         <Style TargetType="DatePicker" x:Key="FormDatePicker">
             <Setter Property="FontSize" Value="13"/>
             <Setter Property="Margin" Value="5,2,5,5"/>
             <Setter Property="Height" Value="35"/>
         </Style>
 
-        <Style TargetType="CheckBox">
+        <!-- Estilo padrão para botões -->
+        <Style TargetType="Button">
             <Setter Property="FontSize" Value="13"/>
-            <Setter Property="Margin" Value="5,10,5,5"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Padding" Value="12,6"/>
+            <Setter Property="Margin" Value="5"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="MinWidth" Value="100"/>
+            <Setter Property="Background" Value="#3498DB"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Opacity" Value="0.9"/>
+                </Trigger>
+            </Style.Triggers>
         </Style>
 
+        <!-- Estilo para Labels -->
         <Style TargetType="Label">
             <Setter Property="FontSize" Value="12"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
             <Setter Property="Margin" Value="5,5,5,0"/>
+            <Setter Property="Foreground" Value="#2C3E50"/>
         </Style>
 
+        <!-- Estilo para TabItems -->
         <Style TargetType="TabItem">
             <Setter Property="FontSize" Value="14"/>
             <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="Padding" Value="20,10"/>
+            <Setter Property="Background" Value="#ECF0F1"/>
+            <Setter Property="Foreground" Value="#2C3E50"/>
         </Style>
     </Window.Resources>
 
-    <Grid DataContext="{StaticResource ViewModel}">
+    <Grid>
         <TabControl Margin="10">
             <!-- Aba 1: Consulta de Usuários -->
             <TabItem Header="🔍 CONSULTAR USUÁRIOS">
@@ -120,14 +140,16 @@
                     </Border>
 
                     <!-- DataGrid com Lista de Usuários -->
-                    <DataGrid Grid.Row="2" 
+                    <DataGrid Grid.Row="1" 
                               ItemsSource="{Binding Usuarios}"
                               SelectedItem="{Binding UsuarioSelecionado, Mode=TwoWay}"
                               AutoGenerateColumns="False"
                               IsReadOnly="True"
                               AlternatingRowBackground="#F2F2F2"
                               FontSize="12"
-                              SelectionMode="Single">
+                              SelectionMode="Single"
+                              BorderBrush="#BDC3C7"
+                              BorderThickness="1" HorizontalAlignment="Left" Margin="0,84,0,0" Grid.RowSpan="2" Width="1054">
 
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="50"/>

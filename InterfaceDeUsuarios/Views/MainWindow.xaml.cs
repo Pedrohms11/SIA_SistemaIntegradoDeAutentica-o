@@ -1,46 +1,27 @@
-﻿using InterfaceDeUsuarios.ViewModel;
-using System.Text;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
+﻿using System.Windows;
+using InterfaceDeUsuarios.ViewModel;
 
 namespace InterfaceDeUsuarios
 {
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
     public partial class MainWindow : Window
     {
         public MainWindow()
         {
             InitializeComponent();
-            DataContext = new UsuarioViewModel();
 
-            // Conectar PasswordBox com ViewModel
-            var viewModel = (UsuarioViewModel)this.DataContext;
-
-            // Evento para sincronizar senhas
-            this.Loaded += (s, e) =>
+            try
             {
-                var txtNovaSenha = (System.Windows.Controls.PasswordBox)this.FindName("txtNovaSenha");
-                var txtConfirmarSenha = (System.Windows.Controls.PasswordBox)this.FindName("txtConfirmarSenha");
-
-                txtNovaSenha.PasswordChanged += (sender, args) =>
-                {
-                    viewModel.NovaSenha = txtNovaSenha.Password;
-                };
-
-                txtConfirmarSenha.PasswordChanged += (sender, args) =>
-                {
-                    viewModel.ConfirmarSenha = txtConfirmarSenha.Password;
-                };
-            };
+                // Instancia o ViewModel e define como DataContext
+                var viewModel = new UsuarioViewModel();
+                this.DataContext = viewModel;
+            }
+            catch (System.Exception ex)
+            {
+                MessageBox.Show($"Erro ao inicializar a aplicação: {ex.Message}\n\nDetalhes: {ex.StackTrace}",
+                    "Erro Crítico",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
+            }
         }
     }
 }
