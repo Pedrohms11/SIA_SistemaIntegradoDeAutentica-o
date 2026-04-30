@@ -1,6 +1,6 @@
 ﻿
 
-using ApiAutenticacao.Services;
+using ApiAutenticacaoUs.Services;
 using Microsoft.AspNetCore.Mvc;
 using SIA_SistemaIntegradoDeAutenticação;
 
@@ -13,9 +13,9 @@ namespace InterfaceDeAutenticação.ViewModel
     [Route("api/[controller]")]
     public class AutenticacaoController : ControllerBase
     {
-        private readonly UsuarioService _autenticacaoService;
+        private readonly UsuarioServices _autenticacaoService;
 
-        public AutenticacaoController(UsuarioService autenticacaoService)
+        public AutenticacaoController(UsuarioServices autenticacaoService)
         {
             _autenticacaoService = autenticacaoService;
         }
@@ -24,8 +24,8 @@ namespace InterfaceDeAutenticação.ViewModel
         {
             try
             {
-                var autenticacaoData = await _autenticacaoService.GetAutenticacaoDataAsync();
-                return Ok(autenticacaoData);
+                var usuarios = await _autenticacaoService.Listar();
+                return Ok(usuarios);
             }
             catch (Exception ex)
             {
@@ -39,10 +39,10 @@ namespace InterfaceDeAutenticação.ViewModel
         {
             try
             {
-                var autenticacaoData = await _autenticacaoService.GetAutenticacaoDataByIdAsync(id);
-                if (autenticacaoData == null)
-                    return NotFound("Dados de autenticação não encontrados.");
-                return Ok(autenticacaoData);
+                var usuarios = await _autenticacaoService.ObterPorId(id);
+                if (usuarios == null)
+                    return NotFound("Dados de usuario não encontrados.");
+                return Ok(usuarios);
 
             }
             catch (Exception ex)
@@ -56,8 +56,8 @@ namespace InterfaceDeAutenticação.ViewModel
         {
             try
             {
-                var _usuarioService = await _autenticacaoService.CreateAutenticacaoDataAsync(usuarios);
-                return Ok(_usuarioService);
+                await _autenticacaoService.Criar(usuarios);
+                return CreatedAtAction(nameof(GetById), new { id = usuarios.Id }, usuarios);
 
             }
             catch (Exception ex)
@@ -67,14 +67,18 @@ namespace InterfaceDeAutenticação.ViewModel
             }
         }
         [HttpPut("{id}")]
-        public async Task<IActionResult> Put(int id, Usuarios usuarios)
+        public async Task<IActionResult> Put(int id, [FromBody] Usuarios usuarios)
         {
+            if (id != usuarios.Id)
+                return BadRequest("ID do usuário não corresponde ao ID fornecido ");
             try
             {
-                var usuarioExistente = await _autenticacaoService.Atualizar(id, usuarios);
+                var usuarioExistente = await _autenticacaoService.ObterPorId(id);
                 if (usuarioExistente == null)
                     return NotFound("Dados de autenticação não encontrados para atualização.");
-                return Ok(usuarioExistente);
+                
+                await _autenticacaoService.Atualizar(usuarios);
+                return NoContent();
             }
             catch (Exception ex)
             {
@@ -88,10 +92,12 @@ namespace InterfaceDeAutenticação.ViewModel
         {
             try
             {
-                var success = await _autenticacaoService.DeleteAutenticacaoDataAsync(id);
-                if (!success)
-                    return NotFound("Dados de autenticação não encontrados para exclusão.");
-                return Ok("Dados de autenticação excluídos com sucesso.");
+                var usuarioExistente = await _autenticacaoService.ObterPorId(id);
+                if (usuarioExistente == null)
+                    return NotFound("Dados de usuario não encontrados para exclusão.");
+
+                await _autenticacaoService.Deletar(id);
+                return NoContent();
             }
             catch (Exception ex)
             {
