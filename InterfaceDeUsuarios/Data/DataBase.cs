@@ -14,11 +14,11 @@ namespace InterfaceDeUsuarios.Data
         private static readonly string pastaBase =
             Path.Combine(
                 Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
-                "BibliotecaComunitaria"
+                "InterfaceDeUsuarios"
             );
 
         private static readonly string caminhoBanco =
-            Path.Combine(pastaBase, "bibliotecaCom.db");
+            Path.Combine(pastaBase, "InterfaceUs.db");
 
         private static readonly string connectionString =
             $"Data Source={caminhoBanco}";
