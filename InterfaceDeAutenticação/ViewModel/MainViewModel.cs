@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace InterfaceDeAutenticação.ViewModel
 {
-    internal class MainViewModel
+    public class MainViewModel
     {
     }
 }
