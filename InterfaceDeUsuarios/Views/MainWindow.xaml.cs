@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using InterfaceDeUsuarios.ViewModel;
+using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -19,6 +20,26 @@ namespace InterfaceDeUsuarios
         public MainWindow()
         {
             InitializeComponent();
+
+            // Conectar PasswordBox com ViewModel
+            var viewModel = (UsuarioViewModel)this.Resources["ViewModel"];
+
+            // Evento para sincronizar senhas
+            this.Loaded += (s, e) =>
+            {
+                var txtNovaSenha = (System.Windows.Controls.PasswordBox)this.FindName("txtNovaSenha");
+                var txtConfirmarSenha = (System.Windows.Controls.PasswordBox)this.FindName("txtConfirmarSenha");
+
+                txtNovaSenha.PasswordChanged += (sender, args) =>
+                {
+                    viewModel.NovaSenha = txtNovaSenha.Password;
+                };
+
+                txtConfirmarSenha.PasswordChanged += (sender, args) =>
+                {
+                    viewModel.ConfirmarSenha = txtConfirmarSenha.Password;
+                };
+            };
         }
     }
 }
