@@ -10,10 +10,10 @@ using System.Threading.Tasks;
 
 namespace InterfaceDeUsuarios.Data
 {
-    public class AppdbContext : DbContext
+    public class AppDbContext : DbContext
     {
-        public AppdbContext(DbContextOptions<AppDbContext> options)
-            : base(options)
+        // O nome dentro do < > DEVE ser idêntico ao nome desta classe
+        public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
         {
         }
 

@@ -13,7 +13,7 @@ namespace InterfaceDeUsuarios.Data
             conn.Open();
 
             var cmd = new SqliteCommand(@"
-    INSERT INTO Usuarios 
+    INSERT INTO Usuario 
     (Username, NomeCompleto, Email, Senha, Genero, Telefone, Pais, 
      DataNascimento, DataCadastro, UltimoLogin, EmailVerificado)
     VALUES (@username, @nomeCompleto, @email, @senha, @genero, @telefone, @pais, 
@@ -50,7 +50,7 @@ namespace InterfaceDeUsuarios.Data
     SELECT Id, Username, NomeCompleto, Email, Senha, Genero, 
            Telefone, Pais, DataNascimento, DataCadastro, 
            UltimoLogin, EmailVerificado
-    FROM Usuarios 
+    FROM Usuario
     ORDER BY NomeCompleto", conn);
 
             using var reader = cmd.ExecuteReader();
@@ -83,7 +83,7 @@ namespace InterfaceDeUsuarios.Data
             var cmd = new SqliteCommand(@"SELECT Id, Username, NomeCompleto, Email, Senha, Genero, 
                                                Telefone, Pais, DataNascimento, DataCadastro, 
                                                UltimoLogin, EmailVerificado
-                                               FROM Usuarios 
+                                               FROM Usuario 
                                                WHERE Id = @id", conn);
 
             cmd.Parameters.AddWithValue("@id", id);
@@ -120,7 +120,7 @@ namespace InterfaceDeUsuarios.Data
             using var conn = DataBase.GetConnection();
             conn.Open();
             var cmd = new SqliteCommand(@"
-        UPDATE Usuarios
+        UPDATE Usuario
         SET Username = @Username,
             NomeCompleto = @NomeCompleto,
             Email = @Email,
@@ -153,7 +153,7 @@ namespace InterfaceDeUsuarios.Data
         {
             using var conn = DataBase.GetConnection();
             conn.Open();
-            var cmd = new SqliteCommand("DELETE FROM Usuarios WHERE Id = @id", conn);
+            var cmd = new SqliteCommand("DELETE FROM Usuario WHERE Id = @id", conn);
             cmd.Parameters.AddWithValue("@id", id);
             cmd.ExecuteNonQuery();
         }
