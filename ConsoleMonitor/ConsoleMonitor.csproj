@@ -8,7 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Services\" />
+    <ProjectReference Include="..\SIA_SistemaIntegradoDeAutenticação\SIA_SistemaIntegradoDeAutenticação.csproj" />
   </ItemGroup>
 
 </Project>
