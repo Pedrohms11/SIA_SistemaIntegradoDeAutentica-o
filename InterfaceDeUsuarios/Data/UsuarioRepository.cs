@@ -38,6 +38,8 @@ namespace InterfaceDeUsuarios.Data
                 cmd.CommandText = "SELECT last_insertrowid()";
                 usuarios.Id = Convert.ToInt32(cmd.ExecuteScalar());
             }
+            usuarios.UltimaModificacao = DateTime.Now;
+
         }
         public List<Usuarios> ListarTodos()
         {
@@ -148,6 +150,7 @@ namespace InterfaceDeUsuarios.Data
             cmd.Parameters.AddWithValue("@EmailVerificado", usuarios.EmailVerificado);
 
             cmd.ExecuteNonQuery();
+            usuarios.UltimaModificacao = DateTime.Now;
         }
         public void excluir(int id)
         {
