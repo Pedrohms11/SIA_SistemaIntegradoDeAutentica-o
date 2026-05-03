@@ -8,6 +8,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.12" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="9.0.12" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\SIA_SistemaIntegradoDeAutenticação\SIA_SistemaIntegradoDeAutenticação.csproj" />
   </ItemGroup>
 

@@ -8,14 +8,14 @@ namespace ConsoleMonitor.Services
     public class MonitorService
     {
         private readonly IDbContextFactory<MonitorDbContext> _contextFactory;
-        private List<Usuario> _cacheUsuarios;
+        private List<Usuarios> _cacheUsuarios;
         private DateTime _ultimaVerificacao;
         private readonly object _lock = new object();
 
         public MonitorService(IDbContextFactory<MonitorDbContext> contextFactory)
         {
             _contextFactory = contextFactory;
-            _cacheUsuarios = new List<Usuario>();
+            _cacheUsuarios = new List<Usuarios>();
         }
 
         public async Task IniciarMonitoramento(CancellationToken cancellationToken)
@@ -79,7 +79,7 @@ namespace ConsoleMonitor.Services
             _ultimaVerificacao = DateTime.Now;
         }
 
-        private async Task DetectarMudanca(Usuario usuarioAntigo, Usuario usuarioNovo, MonitorDbContext context)
+        private async Task DetectarMudanca(Usuarios usuarioAntigo, Usuarios usuarioNovo, MonitorDbContext context)
         {
             if (usuarioAntigo == null)
             {
@@ -118,7 +118,7 @@ namespace ConsoleMonitor.Services
             return !await context.Usuarios.AnyAsync(u => u.Id == id);
         }
 
-        private bool UsuariosSaoIguais(Usuario u1, Usuario u2)
+        private bool UsuariosSaoIguais(Usuarios u1, Usuarios u2)
         {
             return u1.Username == u2.Username &&
                    u1.NomeCompleto == u2.NomeCompleto &&
@@ -130,7 +130,7 @@ namespace ConsoleMonitor.Services
                    u1.EmailVerificado == u2.EmailVerificado;
         }
 
-        private string ObterDetalhesAlteracoes(Usuario antigo, Usuario novo)
+        private string ObterDetalhesAlteracoes(Usuarios antigo, Usuarios novo)
         {
             var alteracoes = new List<string>();
 
@@ -156,7 +156,7 @@ namespace ConsoleMonitor.Services
         }
 
         private async Task RegistrarAlteracao(MonitorDbContext context, int usuarioId, string tipoAcao,
-            string descricao, Usuario dadosAntigos, Usuario dadosNovos)
+            string descricao, Usuarios dadosAntigos, Usuarios dadosNovos)
         {
             var historico = new HistoricoAlteracao
             {
@@ -173,7 +173,7 @@ namespace ConsoleMonitor.Services
             await context.SaveChangesAsync();
         }
 
-        private void ExibirNotificacao(string titulo, Usuario usuario, string detalhes)
+        private void ExibirNotificacao(string titulo, Usuarios usuario, string detalhes)
         {
             var corOriginal = Console.ForegroundColor;
 

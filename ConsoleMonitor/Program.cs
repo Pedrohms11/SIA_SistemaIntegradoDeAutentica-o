@@ -1,7 +1,23 @@
-﻿class Program
+﻿using ConsoleMonitor.Data;
+using ConsoleMonitor.Services;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.EntityFrameworkCore;
+using SIA_SistemaIntegradoDeAutenticação;
+
+class Program
 {
     static async Task Main(string[] args)
     {
+        
+        // Configurar DI
+        var services = new ServiceCollection();
+        services.AddDbContext<MonitorDbContext>(static options =>
+            options.UseSqlite("Data Source=InterfaceUs.db"));
+
+        services.AddSingleton<BackupService>();
+        services.AddSingleton<MonitorService>();
+
+        var serviceProvider = services.BuildServiceProvider();
         Console.Title = "Monitor de Usuários - SIA Sistema Integrado";
         Console.ForegroundColor = ConsoleColor.Cyan;
         Console.WriteLine(@"
@@ -15,17 +31,8 @@
         Console.ResetColor();
         Console.WriteLine();
 
-        // Configurar DI
-        var services = new ServiceCollection();
-        services.AddDbContext<MonitorDbContext>(options =>
-            options.UseSqlite("Data Source=Usuarios.db"));
-
-        services.AddSingleton<BackupService>();
-        services.AddSingleton<MonitorService>();
-
-        var serviceProvider = services.BuildServiceProvider();
-
         // Iniciar monitoramento
+
         var monitor = serviceProvider.GetRequiredService<MonitorService>();
         var backupService = serviceProvider.GetRequiredService<BackupService>();
 

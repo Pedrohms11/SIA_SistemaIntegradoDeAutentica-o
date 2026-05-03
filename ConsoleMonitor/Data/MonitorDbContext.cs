@@ -1,4 +1,5 @@
-﻿using SIA_SistemaIntegradoDeAutenticação;
+﻿using Microsoft.EntityFrameworkCore;
+using SIA_SistemaIntegradoDeAutenticação;
 
 
 namespace ConsoleMonitor.Data
@@ -17,7 +18,7 @@ namespace ConsoleMonitor.Data
             base.OnModelCreating(modelBuilder);
 
             // Configurar índices para melhor performance
-            modelBuilder.Entity<Usuario>()
+            modelBuilder.Entity<Usuarios>()
                 .HasIndex(u => u.UltimaModificacao);
 
             modelBuilder.Entity<HistoricoAlteracao>()
@@ -29,4 +30,4 @@ namespace ConsoleMonitor.Data
     }
 
 }
-}
+
