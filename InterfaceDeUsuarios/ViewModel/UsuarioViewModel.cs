@@ -9,7 +9,7 @@ using System.Windows.Input;
 
 namespace InterfaceDeUsuarios.ViewModel
 {
-    public class UsuarioViewModel : INotifyPropertyChanged  // Remova BaseViewModel se não existir
+    public class UsuarioViewModel : INotifyPropertyChanged  
     {
         private readonly AppDbContext _context;
         private ObservableCollection<Usuarios> _usuarios;
@@ -27,7 +27,7 @@ namespace InterfaceDeUsuarios.ViewModel
             {
                 // CORREÇÃO 1: Usar apenas uma linha para criar o contexto
                 var optionsBuilder = new DbContextOptionsBuilder<AppDbContext>();
-                optionsBuilder.UseSqlite("Data Source=Usuarios.db");
+                optionsBuilder.UseSqlite("Data Source=InterfaceUs.db");
                 _context = new AppDbContext(optionsBuilder.Options);  // Passar as options
 
                 // CORREÇÃO 2: Inicializar comandos
@@ -40,7 +40,7 @@ namespace InterfaceDeUsuarios.ViewModel
                 // CORREÇÃO 3: Inicializar coleções vazias
                 _usuarios = new ObservableCollection<Usuarios>();
 
-                CarregarUsuarios();
+                
             }
             catch (Exception ex)
             {
@@ -326,14 +326,14 @@ namespace InterfaceDeUsuarios.ViewModel
                     MessageBoxButton.OK, MessageBoxImage.Warning);
                 return false;
             }
-
+            /*
             if (string.IsNullOrWhiteSpace(UsuarioSelecionado.Username))
             {
                 MessageBox.Show("Username é obrigatório!", "Validação",
                     MessageBoxButton.OK, MessageBoxImage.Warning);
                 return false;
             }
-
+            */
             if (string.IsNullOrWhiteSpace(UsuarioSelecionado.Email))
             {
                 MessageBox.Show("Email é obrigatório!", "Validação",
@@ -348,7 +348,7 @@ namespace InterfaceDeUsuarios.ViewModel
                 return false;
             }
 
-            if (string.IsNullOrEmpty(NovaSenha))
+            if (!string.IsNullOrEmpty(NovaSenha))
             {
                 MessageBox.Show("Senha é obrigatória para novo usuário!", "Validação",
                     MessageBoxButton.OK, MessageBoxImage.Warning);
