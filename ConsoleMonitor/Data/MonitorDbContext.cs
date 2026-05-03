@@ -1,7 +1,7 @@
 ﻿using SIA_SistemaIntegradoDeAutenticação;
 
 
-namespace ConsoleMonitor.Services
+namespace ConsoleMonitor.Data
 {
     public class MonitorDbContext : DbContext
     {
