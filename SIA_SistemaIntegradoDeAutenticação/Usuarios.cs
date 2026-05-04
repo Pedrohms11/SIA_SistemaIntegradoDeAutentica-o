@@ -15,7 +15,7 @@ namespace SIA_SistemaIntegradoDeAutenticação
         public DateTime DataNascimento { get; set; }
         public DateTime DataCadastro { get; set; }
         public DateTime UltimoLogin { get; set; }
-        public DateTime UltimaModificacao { get; set; }
+        public DateTime? UltimaModificacao { get; set; }
         public bool EmailVerificado { get; set; }
 
 

@@ -162,7 +162,26 @@ namespace InterfaceDeUsuarios.ViewModel
         {
             try
             {
-                var usuarios = _context.Usuario.OrderBy(u => u.NomeCompleto).ToList();
+                var usuarios = _context.Usuario
+                    .OrderBy(u => u.NomeCompleto)
+                    .Select(u => new Usuarios
+                    {
+                        Id = u.Id,
+                        Username = u.Username ?? string.Empty,
+                        NomeCompleto = u.NomeCompleto ?? string.Empty,
+                        Email = u.Email ?? string.Empty,
+                        Senha = u.Senha ?? string.Empty,
+                        Genero = u.Genero ?? string.Empty,
+                        Telefone = u.Telefone ?? string.Empty,
+                        Pais = u.Pais ?? string.Empty,
+                        DataNascimento = u.DataNascimento,
+                        DataCadastro = u.DataCadastro,
+                        UltimoLogin = u.UltimoLogin,
+                        EmailVerificado = u.EmailVerificado,
+                        UltimaModificacao = u.UltimaModificacao ?? DateTime.Now
+                    })
+                    .ToList();
+
                 Usuarios = new ObservableCollection<Usuarios>(usuarios);
 
                 if (usuarios.Any())
@@ -273,6 +292,7 @@ namespace InterfaceDeUsuarios.ViewModel
                     usuarioOriginal.Pais = UsuarioSelecionado.Pais;
                     usuarioOriginal.DataNascimento = UsuarioSelecionado.DataNascimento;
                     usuarioOriginal.EmailVerificado = UsuarioSelecionado.EmailVerificado;
+                    usuarioOriginal.UltimaModificacao = DateTime.Now;
 
                     // Atualizar senha se foi alterada
                     if (!string.IsNullOrEmpty(NovaSenha))
@@ -411,7 +431,8 @@ namespace InterfaceDeUsuarios.ViewModel
                 EmailVerificado = false,
                 Genero = "Masculino",
                 Pais = "Brasil",
-                DataNascimento = new DateTime(2000, 1, 1)
+                DataNascimento = new DateTime(2000, 1, 1),
+                UltimaModificacao = DateTime.Now
             };
             NovaSenha = "";
             ConfirmarSenha = "";

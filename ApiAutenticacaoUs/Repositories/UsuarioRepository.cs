@@ -14,28 +14,45 @@ namespace ApiAutenticacaoUs.Repositories
             _context = context;
         }
 
-        public async Task<List<Usuarios>> GetAll() => await _context.Usuario.ToListAsync();
+        public async Task<List<Usuarios>> GetAll()
+        {
+            return await _context.Usuario
+                .OrderBy(u => u.NomeCompleto)
+                .ToListAsync();
+        }
 
-        public async Task<Usuarios> GetById(int id) => await _context.Usuario.FindAsync(id);
+        public async Task<Usuarios> GetById(int id)
+        {
+            return await _context.Usuario
+                .FirstOrDefaultAsync(u => u.Id == id);
+        }
 
         public async Task Add(Usuarios usuario)
         {
-            _context.Usuario.Add(usuario);
+            usuario.DataCadastro = DateTime.Now;
+            usuario.UltimoLogin = DateTime.Now;
+            usuario.UltimaModificacao = DateTime.Now;
+            usuario.EmailVerificado = false;
+
+            await _context.Usuario.AddAsync(usuario);
             await _context.SaveChangesAsync();
         }
-         
-        public async Task Update (Usuarios usuarios)
-        {
-            _context.Usuario.Update(usuarios);
-            await _context.SaveChangesAsync();
 
+        public async Task Update(Usuarios usuario)
+        {
+            usuario.UltimaModificacao = DateTime.Now;
+            _context.Usuario.Update(usuario);
+            await _context.SaveChangesAsync();
         }
 
         public async Task Delete(int id)
         {
-            var u = await GetById(id);
-            _context.Usuario.Remove(u);
-            await _context.SaveChangesAsync();
+            var usuario = await GetById(id);
+            if (usuario != null)
+            {
+                _context.Usuario.Remove(usuario);
+                await _context.SaveChangesAsync();
+            }
         }
     }
 }

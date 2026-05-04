@@ -1,27 +1,27 @@
-﻿
-namespace SIA_SistemaIntegradoDeAutenticação
+﻿using SIA_SistemaIntegradoDeAutenticação;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
+namespace ConsoleMonitor.Data
 {
     public class HistoricoAlteracao
-    {             
+    {
+        public int Id { get; set; }
 
-            public int Id { get; set; }
+        public int UsuarioId { get; set; }
 
-            public int UsuarioId { get; set; }
+        public string TipoAcao { get; set; } = string.Empty; // 🔧 Inicializado
 
-            public string TipoAcao { get; set; } // CREATE, UPDATE, DELETE
+        public DateTime DataHora { get; set; }
 
-            public DateTime DataHora { get; set; }
+        public string Descricao { get; set; } = string.Empty; // 🔧 Inicializado
 
-            public string Descricao { get; set; }
+        public string DadosAntigos { get; set; } = string.Empty; // 🔧 Inicializado
 
-            public string DadosAntigos { get; set; } // JSON com os dados antes da alteração
+        public string DadosNovos { get; set; } = string.Empty; // 🔧 Inicializado
 
-            public string DadosNovos { get; set; } // JSON com os dados depois da alteração
+        public string IpOrigem { get; set; } = string.Empty; // 🔧 Inicializado
 
-            public string IpOrigem { get; set; } // IP de onde veio a alteração
-
-            // Chave estrangeira
-            public virtual Usuarios Usuario { get; set; }
-        
+        public virtual Usuarios Usuario { get; set; } = null!; // 🔧 Inicializado
     }
 }

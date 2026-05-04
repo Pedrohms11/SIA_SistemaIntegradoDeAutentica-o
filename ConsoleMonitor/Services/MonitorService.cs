@@ -1,5 +1,6 @@
 ﻿using ConsoleMonitor.Data;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using SIA_SistemaIntegradoDeAutenticação;
 using System.Text.Json;
 
@@ -7,48 +8,46 @@ namespace ConsoleMonitor.Services
 {
     public class MonitorService
     {
-        private readonly IDbContextFactory<MonitorDbContext> _contextFactory;
+        private readonly IServiceProvider _serviceProvider;
         private List<Usuarios> _cacheUsuarios;
         private DateTime _ultimaVerificacao;
         private readonly object _lock = new object();
 
-        public MonitorService(IDbContextFactory<MonitorDbContext> contextFactory)
+        public MonitorService(IServiceProvider serviceProvider)
         {
-            _contextFactory = contextFactory;
+            _serviceProvider = serviceProvider;
             _cacheUsuarios = new List<Usuarios>();
         }
 
         public async Task IniciarMonitoramento(CancellationToken cancellationToken)
         {
-            // Carregar cache inicial
-            await CarregarCacheInicial();
+            // Criar um escopo para cada operação
+            using var scope = _serviceProvider.CreateScope();
+            var context = scope.ServiceProvider.GetRequiredService<MonitorDbContext>();
 
-            Console.WriteLine("✅ Monitoramento iniciado! Aguardando alterações...\n");
+            await CarregarCacheInicial(context);
 
             while (!cancellationToken.IsCancellationRequested)
             {
-                await VerificarAlteracoes();
-                await Task.Delay(2000, cancellationToken); // Verificar a cada 2 segundos
+                using var newScope = _serviceProvider.CreateScope();
+                var newContext = newScope.ServiceProvider.GetRequiredService<MonitorDbContext>();
+                await VerificarAlteracoes(newContext);
+                await Task.Delay(2000, cancellationToken);
             }
         }
 
-        private async Task CarregarCacheInicial()
+        private async Task CarregarCacheInicial(MonitorDbContext context)
         {
-            using var context = await _contextFactory.CreateDbContextAsync();
             _cacheUsuarios = await context.Usuarios
                 .OrderBy(u => u.Id)
                 .ToListAsync();
 
             _ultimaVerificacao = DateTime.Now;
-
             Console.WriteLine($"📊 Cache inicial carregado: {_cacheUsuarios.Count} usuários");
         }
 
-        private async Task VerificarAlteracoes()
+        private async Task VerificarAlteracoes(MonitorDbContext context)
         {
-            using var context = await _contextFactory.CreateDbContextAsync();
-
-            // Buscar usuários modificados após a última verificação
             var usuariosAtuais = await context.Usuarios
                 .Where(u => u.UltimaModificacao > _ultimaVerificacao)
                 .OrderBy(u => u.Id)
@@ -163,14 +162,15 @@ namespace ConsoleMonitor.Services
                 UsuarioId = usuarioId,
                 TipoAcao = tipoAcao,
                 DataHora = DateTime.Now,
-                Descricao = descricao,
+                Descricao = descricao ?? string.Empty,
                 DadosAntigos = dadosAntigos != null ? JsonSerializer.Serialize(dadosAntigos) : null,
                 DadosNovos = dadosNovos != null ? JsonSerializer.Serialize(dadosNovos) : null,
-                IpOrigem = "127.0.0.1" // Poderia capturar o IP real da API
+                IpOrigem = "127.0.0.1"
             };
 
             await context.HistoricoAlteracoes.AddAsync(historico);
             await context.SaveChangesAsync();
+
         }
 
         private void ExibirNotificacao(string titulo, Usuarios usuario, string detalhes)

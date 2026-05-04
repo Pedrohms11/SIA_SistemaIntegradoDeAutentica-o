@@ -1,17 +1,19 @@
 ﻿using ConsoleMonitor.Data;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using System.IO.Compression;
+using System.Text.Json;
 
 namespace ConsoleMonitor.Services
 {
     public class BackupService
     {
-        private readonly IDbContextFactory<MonitorDbContext> _contextFactory;
+        private readonly IServiceProvider _serviceProvider;
         private readonly string _backupFolder;
 
-        public BackupService(IDbContextFactory<MonitorDbContext> contextFactory)
+        public BackupService(IServiceProvider serviceProvider)
         {
-            _contextFactory = contextFactory;
+            _serviceProvider = serviceProvider;
             _backupFolder = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Backups");
 
             if (!Directory.Exists(_backupFolder))
@@ -38,9 +40,11 @@ namespace ConsoleMonitor.Services
                 var backupPath = Path.Combine(_backupFolder, backupNome);
                 var zipPath = Path.Combine(_backupFolder, $"Backup_Usuarios_{timestamp}.zip");
 
-                // Fazer backup dos dados via JSON (mais seguro que copiar arquivo .db em uso)
-                using var context = await _contextFactory.CreateDbContextAsync();
+                // Criar um escopo para obter o DbContext
+                using var scope = _serviceProvider.CreateScope();
+                var context = scope.ServiceProvider.GetRequiredService<MonitorDbContext>();
 
+                // Fazer backup dos dados via JSON
                 var usuarios = await context.Usuarios.ToListAsync();
                 var historicos = await context.HistoricoAlteracoes.ToListAsync();
 
@@ -53,7 +57,7 @@ namespace ConsoleMonitor.Services
                     TotalAlteracoes = historicos.Count
                 };
 
-                var json = System.Text.Json.JsonSerializer.Serialize(backupData, new System.Text.Json.JsonSerializerOptions
+                var json = JsonSerializer.Serialize(backupData, new JsonSerializerOptions
                 {
                     WriteIndented = true
                 });
@@ -90,12 +94,6 @@ namespace ConsoleMonitor.Services
                 Console.WriteLine($"[{DateTime.Now:HH:mm:ss}] ❌ Erro no backup: {ex.Message}");
                 Console.ResetColor();
             }
-        }
-
-        public async Task RestaurarBackup(string arquivoZip)
-        {
-            // Implementar restauração se necessário
-            Console.WriteLine("Função de restauração em desenvolvimento...");
         }
     }
 }

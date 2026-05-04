@@ -1,26 +1,17 @@
-﻿using ConsoleMonitor.Data;
-using ConsoleMonitor.Services;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.EntityFrameworkCore;
-using SIA_SistemaIntegradoDeAutenticação;
+using ConsoleMonitor.Services;
+using ConsoleMonitor.Data;
 
-class Program
+namespace ConsoleMonitor
 {
-    static async Task Main(string[] args)
+    public class Program
     {
-        
-        // Configurar DI
-        var services = new ServiceCollection();
-        services.AddDbContext<MonitorDbContext>(static options =>
-            options.UseSqlite("Data Source=InterfaceUs.db"));
-
-        services.AddSingleton<BackupService>();
-        services.AddSingleton<MonitorService>();
-
-        var serviceProvider = services.BuildServiceProvider();
-        Console.Title = "Monitor de Usuários - SIA Sistema Integrado";
-        Console.ForegroundColor = ConsoleColor.Cyan;
-        Console.WriteLine(@"
+        static async Task Main(string[] args)
+        {
+            Console.Title = "Monitor de Usuários - SIA Sistema Integrado";
+            Console.ForegroundColor = ConsoleColor.Cyan;
+            Console.WriteLine(@"
 ╔══════════════════════════════════════════════════════════════╗
 ║     SISTEMA DE MONITORAMENTO DE USUÁRIOS - TEMPO REAL       ║
 ║                                                              ║
@@ -28,43 +19,53 @@ class Program
 ║  Pressione 'Q' para sair | 'B' para backup manual          ║
 ╚══════════════════════════════════════════════════════════════╝
 ");
-        Console.ResetColor();
-        Console.WriteLine();
+            Console.ResetColor();
+            Console.WriteLine();
 
-        // Iniciar monitoramento
+            // Configurar DI
+            var services = new ServiceCollection();
 
-        var monitor = serviceProvider.GetRequiredService<MonitorService>();
-        var backupService = serviceProvider.GetRequiredService<BackupService>();
+            // Registrar DbContext (NÃO como factory)
+            services.AddDbContext<MonitorDbContext>(options =>
+                options.UseSqlite("Data Source=InterfaceUs.db"),
+                ServiceLifetime.Scoped);
 
-        // Iniciar monitoramento em background
-        var cts = new CancellationTokenSource();
-        var monitorTask = monitor.IniciarMonitoramento(cts.Token);
+            // Registrar serviços como Singleton
+            services.AddSingleton<MonitorService>();
+            services.AddSingleton<BackupService>();
 
-        // Configurar backup automático (a cada 1 hora)
-        var backupTask = backupService.IniciarBackupAutomatico(TimeSpan.FromHours(1), cts.Token);
+            var serviceProvider = services.BuildServiceProvider();
 
-        // Loop para comandos do usuário
-        while (true)
-        {
-            if (Console.KeyAvailable)
+            // Iniciar monitoramento
+            var monitor = serviceProvider.GetRequiredService<MonitorService>();
+            var backupService = serviceProvider.GetRequiredService<BackupService>();
+
+            var cts = new CancellationTokenSource();
+            var monitorTask = monitor.IniciarMonitoramento(cts.Token);
+            var backupTask = backupService.IniciarBackupAutomatico(TimeSpan.FromHours(1), cts.Token);
+
+            // Loop para comandos do usuário
+            while (true)
             {
-                var key = Console.ReadKey(true).Key;
-                if (key == ConsoleKey.Q)
+                if (Console.KeyAvailable)
                 {
-                    Console.WriteLine("\n🛑 Encerrando monitoramento...");
-                    cts.Cancel();
-                    break;
+                    var key = Console.ReadKey(true).Key;
+                    if (key == ConsoleKey.Q)
+                    {
+                        Console.WriteLine("\n🛑 Encerrando monitoramento...");
+                        cts.Cancel();
+                        break;
+                    }
+                    else if (key == ConsoleKey.B)
+                    {
+                        await backupService.RealizarBackup();
+                    }
                 }
-                else if (key == ConsoleKey.B)
-                {
-                    await backupService.RealizarBackup();
-                }
+                await Task.Delay(100);
             }
-            await Task.Delay(100);
-        }
 
-        await Task.WhenAll(monitorTask, backupTask);
-        Console.WriteLine("✅ Monitoramento encerrado com sucesso!");
+            await Task.WhenAll(monitorTask, backupTask);
+            Console.WriteLine("✅ Monitoramento encerrado com sucesso!");
+        }
     }
 }
-

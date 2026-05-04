@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace ApiAutenticacaoUs.Migrations
+namespace ApiAutenticacao.Migrations
 {
     /// <inheritdoc />
     public partial class InitialCreate : Migration
@@ -12,7 +12,7 @@ namespace ApiAutenticacaoUs.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "Usuario",
+                name: "Usuarios",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "INTEGER", nullable: false)
@@ -27,11 +27,12 @@ namespace ApiAutenticacaoUs.Migrations
                     DataNascimento = table.Column<DateTime>(type: "TEXT", nullable: false),
                     DataCadastro = table.Column<DateTime>(type: "TEXT", nullable: false),
                     UltimoLogin = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    UltimaModificacao = table.Column<DateTime>(type: "TEXT", nullable: true),
                     EmailVerificado = table.Column<bool>(type: "INTEGER", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Usuario", x => x.Id);
+                    table.PrimaryKey("PK_Usuarios", x => x.Id);
                 });
         }
 
@@ -39,7 +40,7 @@ namespace ApiAutenticacaoUs.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "Usuario");
+                name: "Usuarios");
         }
     }
 }

@@ -6,7 +6,6 @@ namespace InterfaceDeUsuarios.Data
 {
     public class UsuarioRepository
     {
-
         public void Inserir(Usuarios usuarios)
         {
             using var conn = DataBase.GetConnection();
@@ -15,9 +14,9 @@ namespace InterfaceDeUsuarios.Data
             var cmd = new SqliteCommand(@"
     INSERT INTO Usuario 
     (Username, NomeCompleto, Email, Senha, Genero, Telefone, Pais, 
-     DataNascimento, DataCadastro, UltimoLogin, EmailVerificado)
+     DataNascimento, DataCadastro, UltimoLogin, EmailVerificado, UltimaModificacao)
     VALUES (@username, @nomeCompleto, @email, @senha, @genero, @telefone, @pais, 
-            @dataNascimento, @dataCadastro, @ultimoLogin, @emailVerificado)", conn);
+            @dataNascimento, @dataCadastro, @ultimoLogin, @emailVerificado, @ultimaModificacao)", conn);
 
             cmd.Parameters.AddWithValue("@username", usuarios.Username);
             cmd.Parameters.AddWithValue("@nomeCompleto", usuarios.NomeCompleto);
@@ -30,17 +29,18 @@ namespace InterfaceDeUsuarios.Data
             cmd.Parameters.AddWithValue("@dataCadastro", usuarios.DataCadastro);
             cmd.Parameters.AddWithValue("@ultimoLogin", usuarios.UltimoLogin);
             cmd.Parameters.AddWithValue("@emailVerificado", usuarios.EmailVerificado ? 1 : 0);
+            cmd.Parameters.AddWithValue("@ultimaModificacao", DateTime.Now);
 
             cmd.ExecuteNonQuery();
 
             if (usuarios.Id == 0)
             {
-                cmd.CommandText = "SELECT last_insertrowid()";
+                cmd.CommandText = "SELECT last_insert_rowid()";
                 usuarios.Id = Convert.ToInt32(cmd.ExecuteScalar());
             }
             usuarios.UltimaModificacao = DateTime.Now;
-
         }
+
         public List<Usuarios> ListarTodos()
         {
             var usuarios = new List<Usuarios>();
@@ -51,7 +51,7 @@ namespace InterfaceDeUsuarios.Data
             var cmd = new SqliteCommand(@"
     SELECT Id, Username, NomeCompleto, Email, Senha, Genero, 
            Telefone, Pais, DataNascimento, DataCadastro, 
-           UltimoLogin, EmailVerificado
+           UltimoLogin, EmailVerificado, UltimaModificacao
     FROM Usuario
     ORDER BY NomeCompleto", conn);
 
@@ -68,23 +68,25 @@ namespace InterfaceDeUsuarios.Data
                     Genero = reader.IsDBNull(5) ? null : reader.GetString(5),
                     Telefone = reader.IsDBNull(6) ? null : reader.GetString(6),
                     Pais = reader.IsDBNull(7) ? null : reader.GetString(7),
-                    DataNascimento = reader.GetDateTime(8),
+                    DataNascimento = reader.IsDBNull(8) ? DateTime.MinValue : reader.GetDateTime(8),
                     DataCadastro = reader.GetDateTime(9),
                     UltimoLogin = reader.GetDateTime(10),
-                    EmailVerificado = reader.GetBoolean(11)
+                    EmailVerificado = reader.GetBoolean(11),
+                    UltimaModificacao = reader.IsDBNull(12) ? DateTime.Now : reader.GetDateTime(12)
                 };
                 usuarios.Add(usuario);
             }
 
             return usuarios;
         }
+
         public Usuarios BuscarPorId(int id)
         {
             using var conn = DataBase.GetConnection();
             conn.Open();
             var cmd = new SqliteCommand(@"SELECT Id, Username, NomeCompleto, Email, Senha, Genero, 
                                                Telefone, Pais, DataNascimento, DataCadastro, 
-                                               UltimoLogin, EmailVerificado
+                                               UltimoLogin, EmailVerificado, UltimaModificacao
                                                FROM Usuario 
                                                WHERE Id = @id", conn);
 
@@ -104,19 +106,21 @@ namespace InterfaceDeUsuarios.Data
                     Genero = reader.IsDBNull(5) ? null : reader.GetString(5),
                     Telefone = reader.IsDBNull(6) ? null : reader.GetString(6),
                     Pais = reader.IsDBNull(7) ? null : reader.GetString(7),
-                    DataNascimento = reader.GetDateTime(8),
+                    DataNascimento = reader.IsDBNull(8) ? DateTime.MinValue : reader.GetDateTime(8),
                     DataCadastro = reader.GetDateTime(9),
                     UltimoLogin = reader.GetDateTime(10),
-                    EmailVerificado = reader.GetBoolean(11)
+                    EmailVerificado = reader.GetBoolean(11),
+                    UltimaModificacao = reader.IsDBNull(12) ? DateTime.Now : reader.GetDateTime(12)
                 };
-                return usuario; // ✅ Retorna o usuário encontrado
+                return usuario;
             }
             else
             {
                 MessageBox.Show($"Usuário com ID {id} não encontrado");
-                return null; // ✅ Retorna null quando não encontra
+                return null;
             }
         }
+
         public void Atualizar(Usuarios usuarios)
         {
             using var conn = DataBase.GetConnection();
@@ -133,7 +137,8 @@ namespace InterfaceDeUsuarios.Data
             DataNascimento = @DataNascimento,
             DataCadastro = @DataCadastro,
             UltimoLogin = @UltimoLogin,
-            EmailVerificado = @EmailVerificado
+            EmailVerificado = @EmailVerificado,
+            UltimaModificacao = @UltimaModificacao
         WHERE Id = @Id", conn);
 
             cmd.Parameters.AddWithValue("@Id", usuarios.Id);
@@ -147,12 +152,14 @@ namespace InterfaceDeUsuarios.Data
             cmd.Parameters.AddWithValue("@DataNascimento", usuarios.DataNascimento);
             cmd.Parameters.AddWithValue("@DataCadastro", usuarios.DataCadastro);
             cmd.Parameters.AddWithValue("@UltimoLogin", usuarios.UltimoLogin);
-            cmd.Parameters.AddWithValue("@EmailVerificado", usuarios.EmailVerificado);
+            cmd.Parameters.AddWithValue("@EmailVerificado", usuarios.EmailVerificado ? 1 : 0);
+            cmd.Parameters.AddWithValue("@UltimaModificacao", DateTime.Now);
 
             cmd.ExecuteNonQuery();
             usuarios.UltimaModificacao = DateTime.Now;
         }
-        public void excluir(int id)
+
+        public void Excluir(int id)
         {
             using var conn = DataBase.GetConnection();
             conn.Open();
@@ -160,6 +167,5 @@ namespace InterfaceDeUsuarios.Data
             cmd.Parameters.AddWithValue("@id", id);
             cmd.ExecuteNonQuery();
         }
-
     }
 }
